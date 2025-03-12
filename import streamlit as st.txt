@@ -1,0 +1,29 @@
+import streamlit as st
+import pickle
+import numpy as np
+import pandas as pd
+
+# Load the saved model
+with open("product_model.pkl", "rb") as file:
+    model_data = pickle.load(file)
+
+similarity_matrix = model_data["similarity_matrix"]
+data = model_data["data"]  # Original product data
+
+# Function to recommend similar products
+def recommend_similar_products(product_index, top_n=5):
+    similar_indices = np.argsort(similarity_matrix[product_index])[::-1][1:top_n+1]
+    return data.iloc[similar_indices]
+
+# Streamlit UI
+st.title("🛍️ Product Recommendation System")
+
+# Dropdown to select a product
+product_id = st.selectbox("Select a Product ID:", range(len(data)))
+
+# Show recommendations on button click
+if st.button("Get Recommendations"):
+    recommendations = recommend_similar_products(product_id)
+    st.write("### Recommended Products:")
+    st.dataframe(recommendations)
+
